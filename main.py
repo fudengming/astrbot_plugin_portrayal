@@ -117,12 +117,7 @@ class Relationship(Star):
         )
 
     @filter.command("画像")
-    async def get_portrayal(
-        self,
-        event: AiocqhttpMessageEvent,
-        at_name: str | None = None,
-        max_query_rounds: int | None = None,
-    ):
+    async def get_portrayal(self, event: AiocqhttpMessageEvent):
         """
         画像 @群友 <查询轮数>
         """
@@ -133,8 +128,10 @@ class Relationship(Star):
             contexts = self.contexts_cache[target_id]
         else:
             # 每轮查询200条消息，200轮查询4w条消息,几乎接近漫游极限
-            if max_query_rounds is None:
-                max_query_rounds = int(self.conf["max_query_rounds"])
+            end_parm = event.message_str.split(" ")[-1]
+            max_query_rounds = (
+                int(end_parm) if end_parm.isdigit() else self.conf["max_query_rounds"]
+            )
             target_query_rounds = min(200, max(0, max_query_rounds))
             yield event.plain_result(
                 f"正在发起{target_query_rounds}轮查询来获取{nickname}的消息..."
